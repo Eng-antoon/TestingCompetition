@@ -1,0 +1,179 @@
+<!-- user_management.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Same head content as index.html -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Choices.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+    
+    <!-- Firebase Configuration -->
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+    <!-- Firebase Services -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+    
+    <!-- Firebase Initialization -->
+    <script>
+        const firebaseConfig = {
+  apiKey: "AIzaSyCnSAELIKIK6TkAQmG1csD54NtrPtX189Q",
+  authDomain: "armyapp-c3f37.firebaseapp.com",
+  projectId: "armyapp-c3f37",
+  storageBucket: "armyapp-c3f37.appspot.com",
+  messagingSenderId: "341907242150",
+  appId: "1:341907242150:web:b64fe61a9ec52c4c9ec867",
+  measurementId: "G-5WELL8GF9Z"
+};
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    
+    <!-- Choices.js -->
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <!-- Set currentPage -->
+    <script>
+        const currentPage = 'user_management';
+    </script>
+</head>
+<body>
+    <!-- Sign-in Modal -->
+    <div id="signInModal" class="modal show" role="dialog" aria-labelledby="signInTitle" aria-modal="true">
+        <!-- Sign-in form as before -->
+        <div class="modal-content gradient-background">
+            <h2 id="signInTitle">Sign In</h2>
+            <form id="signInForm">
+                <label for="signInEmail">Email:</label>
+                <input type="email" id="signInEmail" required aria-required="true" aria-describedby="emailHelp">
+                <small id="emailHelp">We'll never share your email with anyone else.</small>
+                <label for="signInPassword">Password:</label>
+                <input type="password" id="signInPassword" required aria-required="true">
+                <button type="submit">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container hidden" id="mainContent">
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="navbar-brand">User Management</div>
+            <div class="navbar-menu" id="navbarMenu">
+                <!-- Include only user management-related buttons -->
+                <button class="control-button" id="addUserButton" onclick="openForm('signUpModal')">Add User</button>
+                <!-- Logout Button -->
+                <button class="control-button" id="logoutButton">Logout</button>
+            </div>
+            <div class="hamburger-menu" id="hamburgerMenu" aria-label="Menu">&#9776;</div>
+        </nav>
+        <button class="back-button" onclick="goBackHome()">Back to Home</button>
+
+
+        <!-- Main Heading -->
+        <h1>User Management</h1>
+
+        <!-- User Management Content -->
+        <!-- You can include a table of users, forms to edit roles, etc. -->
+        <!-- For simplicity, we'll just include the sign-up modal -->
+
+        <div class="users-table-container">
+            <h2>Users Management</h2>
+            <table id="usersTable">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- User rows will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+        
+
+        <!-- Edit User Modal -->
+<div id="editUserModal" class="modal hidden" role="dialog" aria-labelledby="editUserTitle" aria-modal="true" onclick="closeModal(event)">
+    <div class="modal-content gradient-background" onclick="event.stopPropagation()">
+        <span class="close" onclick="closeForm('editUserModal')">&times;</span>
+        <h3 id="editUserTitle">Edit User</h3>
+        <form id="editUserForm">
+            <input type="hidden" id="editUserId">
+            <label for="editUserEmail">Email:</label>
+            <input type="email" id="editUserEmail" required>
+
+            <label for="editUserPassword">Password:</label>
+            <input type="password" id="editUserPassword">
+
+            <label for="editUserRoles">Roles:</label>
+            <div id="editUserRolesContainer">
+                <!-- Roles checkboxes will be added here -->
+            </div>
+
+            <button type="button" class="submit-button" onclick="updateUser()">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+        <!-- Sign-Up Modal -->
+        <div id="signUpModal" class="modal hidden" role="dialog" aria-labelledby="signUpTitle" aria-modal="true" onclick="closeModal(event)">
+            <div class="modal-content gradient-background">
+                <span class="close" onclick="closeForm('signUpModal')">&times;</span>
+                <h2 id="signUpTitle">Create User</h2>
+                <form id="signUpForm">
+                    <label for="signUpEmail">Email:</label>
+                    <input type="email" id="signUpEmail" required>
+                    <label for="signUpPassword">Password:</label>
+                    <input type="password" id="signUpPassword" required>
+                    <label for="signUpRole">Role:</label>
+                    <select id="signUpRole" required>
+                        <option value="">Select Role</option>
+                        <option value="SuperAdmin">SuperAdmin</option>
+                        <option value="Full Viewer">Full Viewer</option>
+                        <option value="Full Editor">Full Editor</option>
+                        <!-- Class-Specific Roles -->
+                        <optgroup label="Classes">
+                            <option value="ashbal Viewer">ashbal Viewer</option>
+                            <option value="ashbal Editor">ashbal Editor</option>
+                <!-- Bara3emBoys -->
+                <option value="bara3emBoys Viewer">bara3emBoys Viewer</option>
+                <option value="bara3emBoys Editor">bara3emBoys Editor</option>
+                            <!-- Gawala -->
+                <option value="gawala Viewer">gawala Viewer</option>
+                <option value="gawala Editor">gawala Editor</option>
+                <!-- Kashaf -->
+                <option value="kashaf Viewer">kashaf Viewer</option>
+                <option value="kashaf Editor">kashaf Editor</option>
+                <!-- Ra2edat -->
+                <option value="ra2edat Viewer">ra2edat Viewer</option>
+                <option value="ra2edat Editor">ra2edat Editor</option>
+
+                <!-- Zahrat -->
+                <option value="zahrat Viewer">zahrat Viewer</option>
+                <option value="zahrat Editor">zahrat Editor</option>
+            
+                            <option value="motkadem Viewer">motkadem Viewer</option>
+                            <option value="motkadem Editor">motkadem Editor</option>
+                            <!-- Add more class-specific roles as needed -->
+                        </optgroup>
+                    </select>
+                    <button type="submit">Create User</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="hidden"></div>
+    </div>
+
+    <!-- External JS -->
+    <script src="scripts.js"></script>
+</body>
+</html>

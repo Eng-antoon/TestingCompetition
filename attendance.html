@@ -1,0 +1,262 @@
+<!-- attendance.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Same head content as index.html -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متتبع الحضور</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Choices.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+    
+    <!-- Firebase Configuration -->
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+    <!-- Firebase Services -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+    
+    <!-- Firebase Initialization -->
+    <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCnSAELIKIK6TkAQmG1csD54NtrPtX189Q",
+  authDomain: "armyapp-c3f37.firebaseapp.com",
+  projectId: "armyapp-c3f37",
+  storageBucket: "armyapp-c3f37.appspot.com",
+  messagingSenderId: "341907242150",
+  appId: "1:341907242150:web:b64fe61a9ec52c4c9ec867",
+  measurementId: "G-5WELL8GF9Z"
+};
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    
+    <!-- XLSX.js for Excel file generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+    
+    <!-- Choices.js -->
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <!-- Set currentPage -->
+    <script>
+        const currentPage = 'attendance';
+    </script>
+</head>
+<body dir="rtl">
+    <!-- Sign-in Modal -->
+    <div id="signInModal" class="modal show" role="dialog" aria-labelledby="signInTitle" aria-modal="true">
+        <!-- Sign-in form as before -->
+        <div class="modal-content gradient-background">
+            <h2 id="signInTitle">تسجيل الدخول</h2>
+            <form id="signInForm">
+                <label for="signInEmail">البريد الإلكتروني:</label>
+                <input type="email" id="signInEmail" required aria-required="true" aria-describedby="emailHelp">
+                <small id="emailHelp">لن نشارك بريدك الإلكتروني مع أي شخص آخر.</small>
+                <label for="signInPassword">كلمة المرور:</label>
+                <input type="password" id="signInPassword" required aria-required="true">
+                <button type="submit">تسجيل الدخول</button>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container hidden" id="mainContent">
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="navbar-brand">متتبع الحضور</div>
+            <div class="navbar-menu" id="navbarMenu">
+                <!-- Include only attendance-related buttons -->
+                <button class="control-button" data-action="addRecordForm">إضافة سجل</button>
+                <button class="control-button" data-action="bulkAttendanceForm">إضافة حضور جماعي</button>
+                <button class="control-button" data-action="importAttendanceForm">استيراد الحضور</button>
+                <button class="control-button" data-action="calendar">عرض التقويم</button>
+                <button class="control-button" data-action="table">عرض الجدول</button>
+                <button class="control-button" data-action="downloadMonthlyData">تنزيل بيانات الشهر</button>
+                <button class="control-button" data-action="refreshData">تحديث البيانات</button>
+                
+                <!-- Logout Button -->
+                <button class="control-button" id="logoutButton">تسجيل الخروج</button>
+            </div>
+            <div class="hamburger-menu" id="hamburgerMenu" aria-label="Menu">&#9776;</div>
+        </nav>
+        <button class="back-button" onclick="goBackHome()">العودة إلى الصفحة الرئيسية</button>
+
+
+        <!-- Controls and Filters -->
+        <h1>متتبع الحضور</h1>
+        <div class="controls">
+            <!-- Class Selection -->
+            <label for="classSelect">اختر الفئة:</label>
+            <select id="classSelect">
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
+        <div class="filters-container">
+            <div class="search-bar">
+                <input type="text" id="nameSearch" placeholder="البحث بالاسم">
+            </div>
+            <div class="filter-dropdown">
+                <button id="filterbutton" class="filter-button" onclick="toggleFilterDropdown()">تصفية</button>
+                <div id="filterDropdownContent" class="modal hidden" onclick="closeModal(event)">
+                    <div class="modal-content" onclick="event.stopPropagation()">
+                        <span class="close" onclick="closeForm('filterDropdownContent')">&times;</span>
+                        <h3>تصفية</h3>
+                        <label for="filterName">البحث بالاسم: </label>
+                        <select id="filterName" multiple></select>
+                        <label for="filterDate">البحث بالتاريخ: </label>
+                        <input type="date" id="filterDate">
+                        <button class="submit-button" onclick="applyFilters(true)">بحث</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div id="calendarView" class="hidden">
+            <div class="calendar-header">
+                <button class="calendar-nav-button" id="prevMonthButton" onclick="changeMonth(-1)">&#10094;</button>
+                <span id="currentMonthYear" class="calendar-month"></span>
+                <button class="calendar-nav-button" id="nextMonthButton" onclick="changeMonth(1)">&#10095;</button>
+            </div>
+            <div class="calendar" id="calendar"></div>
+        </div>
+
+        <!-- Table View -->
+        <div id="tableView" class="hidden">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الفئة</th>
+                            <th>الاسم</th>
+                            <th>التاريخ</th>
+                            <th>الحضور</th>
+                            <th>الوصف</th>
+                            <th>تعديل</th>                            
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modals and Forms -->
+        <!-- Add Record Form -->
+        <!-- Include the relevant modals (same as your original code, but only the ones related to attendance) -->
+        <!-- Add Record Form -->
+<!-- Add Record Form -->
+<div id="addRecordForm" class="modal hidden" role="dialog" aria-labelledby="addRecordTitle" aria-modal="true" onclick="closeModal(event)">
+    <div class="modal-content gradient-background">
+        <span class="close" onclick="closeForm('addRecordForm')">&times;</span>
+        <h3 id="addRecordTitle">إضافة سجل</h3>
+        <!-- Error Message Container -->
+        <div id="addRecordError" class="error-message"></div>
+
+        <!-- Wrap inputs in a form -->
+        <form id="addRecordFormElement">
+            <label for="recordClass">اختر الفئة:</label>
+            <select id="recordClass" required>
+                <!-- Class options will be populated dynamically -->
+            </select>
+
+            <label for="recordName">أدخل الاسم:</label>
+            <select id="recordName" required multiple></select>
+
+            <label for="recordDate">التاريخ: </label>
+            <input type="date" id="recordDate" required>
+            <label for="recordAttendance">الحضور: </label>
+            <select id="recordAttendance" onchange="toggleDescription()">
+                <option value="Attended">حضر</option>
+                <option value="Absent">غائب</option>
+                <option value="Excused">معذور</option>                
+            </select>
+            <label for="recordDescription" id="descriptionLabel" class="hidden">الوصف: </label>
+            <input type="text" id="recordDescription" class="hidden">
+            <button type="button" class="submit-button" onclick="addRecord()">إرسال</button>
+        </form>
+    </div>
+</div>
+
+        <!-- Bulk Attendance Form -->
+        <div id="bulkAttendanceForm" class="modal hidden" role="dialog" aria-labelledby="bulkAttendanceTitle" aria-modal="true" onclick="closeModal(event)">
+            <div class="modal-content gradient-background" onclick="event.stopPropagation()">
+                <span class="close" onclick="closeForm('bulkAttendanceForm')">&times;</span>
+                <h3 id="bulkAttendanceTitle">إضافة حضور جماعي</h3>
+                <!-- Wrap inputs in a form -->
+                <form id="bulkAttendanceFormElement">
+                    <label for="bulkRecordClass">اختر الفئة:</label>
+                    <select id="bulkRecordClass" required>
+                        <!-- Class options will be populated dynamically -->
+                    </select>
+                    <label for="bulkRecordNames">أدخل الأسماء:</label>
+                    <select id="bulkRecordNames" multiple></select>
+                    <label for="bulkRecordDate">التاريخ: </label>
+                    <input type="date" id="bulkRecordDate" required>
+                    <label for="bulkRecordAttendance">الحضور: </label>
+                    <select id="bulkRecordAttendance" required>
+                        <option value="Attended">حضر</option>
+                        <option value="Absent">غائب</option>
+                        <option value="Excused">معذور</option>                        
+                    </select>
+                    <button type="button" class="submit-button" onclick="addBulkAttendance()">إرسال</button>
+                </form>
+            </div>
+        </div>
+
+
+<!-- Import Attendance Form -->
+<div id="importAttendanceForm" class="modal hidden" role="dialog" aria-labelledby="importAttendanceTitle" aria-modal="true" onclick="closeModal(event)">
+    <div class="modal-content gradient-background" onclick="event.stopPropagation()">
+        <span class="close" onclick="closeForm('importAttendanceForm')">&times;</span>
+        <h3 id="importAttendanceTitle">استيراد الحضور</h3>
+        <!-- Instructions -->
+        <p>يرجى التأكد من أن الأسماء في ملفك تطابق الأسماء في النظام تمامًا.</p>
+        <p>الصيغ المقبولة للتواريخ: <strong>YYYY-MM-DD</strong>, <strong>MM/DD/YY</strong>, أو <strong>DD-MM-YYYY</strong>.</p>
+        <!-- Download Template Button -->
+        <button type="button" class="submit-button" onclick="downloadAttendanceTemplate()">تحميل القالب</button>
+        <!-- File Input for Upload -->
+        <input type="file" id="attendanceFileInput" accept=".xlsx, .xls, .csv">
+        <!-- Import Button -->
+        <button type="button" class="submit-button" onclick="importAttendance()">استيراد</button>
+    </div>
+</div>
+
+                <!-- Edit Record Form -->
+        <div id="editRecordForm" class="modal hidden" role="dialog" aria-labelledby="editRecordTitle" aria-modal="true" onclick="closeModal(event)">
+            <div class="modal-content gradient-background" onclick="event.stopPropagation()">
+                <span class="close" onclick="closeForm('editRecordForm')">&times;</span>
+                <h3 id="editRecordTitle">تعديل الحالة</h3>
+                <!-- Error Message Container -->
+                <div id="editRecordError" class="error-message"></div>
+                <label for="editRecordClass">اختر الفئة</label>
+                <input type="text" id="editRecordClass" readonly>
+                <label for="editRecordName">الاسم</label>
+                <input type="text" id="editRecordName" readonly>
+
+                <label for="editRecordDate">تاريخ الحالة</label>
+                <input type="date" id="editRecordDate" required>
+                <label for="editRecordAttendance">نوع الحالة</label>
+                <select id="editRecordAttendance" onchange="toggleEditDescription()" required>
+                    <option value="Attended">حضر</option>
+                    <option value="Absent">غائب</option>
+                    <option value="Excused">معذور</option>                        
+
+                </select>
+                <label for="editRecordDescription" id="editDescriptionLabel" class="hidden">ملاحظات </label>
+                <input type="text" id="editRecordDescription" class="hidden">
+                <button class="submit-button" onclick="updateRecord()">تعديل</button>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="hidden"></div>
+    </div>
+
+    <!-- External JS -->
+    <script src="scripts.js"></script>
+</body>
+</html>

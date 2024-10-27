@@ -1,0 +1,436 @@
+<!-- person_management.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Same head content as index.html -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الأشخاص</title>
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Choices.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+
+    <!-- Firebase Configuration -->
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+    <!-- Firebase Services -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+
+    <!-- Firebase Initialization -->
+    <script>
+        const firebaseConfig = {
+  apiKey: "AIzaSyCnSAELIKIK6TkAQmG1csD54NtrPtX189Q",
+  authDomain: "armyapp-c3f37.firebaseapp.com",
+  projectId: "armyapp-c3f37",
+  storageBucket: "armyapp-c3f37.appspot.com",
+  messagingSenderId: "341907242150",
+  appId: "1:341907242150:web:b64fe61a9ec52c4c9ec867",
+  measurementId: "G-5WELL8GF9Z"
+};
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <!-- XLSX.js for Excel file generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+    
+
+    <!-- Choices.js -->
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <!-- Set currentPage -->
+    <script>
+        const currentPage = 'person_management';
+    </script>
+    <style>
+
+.person-action{
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;    
+    font-weight: bolder;
+}
+
+
+    </style>
+</head>
+
+<body>
+    <!-- Sign-in Modal -->
+    <div id="signInModal" class="modal show" role="dialog" aria-labelledby="signInTitle" aria-modal="true">
+        <!-- Sign-in form as before -->
+        <div class="modal-content gradient-background">
+            <h2 id="signInTitle">تسجيل الدخول</h2>
+            <form id="signInForm">
+                <label for="signInEmail">البريد الإلكتروني:</label>
+                <input type="email" id="signInEmail" required aria-required="true" aria-describedby="emailHelp">
+                <small id="emailHelp">لن نشارك بريدك الإلكتروني مع أي شخص آخر.</small>
+                <label for="signInPassword">كلمة المرور:</label>
+                <input type="password" id="signInPassword" required aria-required="true">
+                <button type="submit">تسجيل الدخول</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container hidden" id="mainContent">
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="navbar-brand">إدارة الأشخاص</div>
+            <div class="navbar-menu" id="navbarMenu">
+                <!-- Include only person management-related buttons -->
+                <button class="control-button" data-action="addPersonForm">إضافة شخص</button>
+                <button class="control-button" id="createTagButton">إنشاء بطاقة جديدة</button>
+                <button class="control-button" data-action="manageTagsForm">إدارة البطاقات</button>
+                <button class="control-button" onclick="exportPersons()">تصدير الأشخاص</button>
+                <button class="control-button" data-action="importPersonForm">استيراد الأشخاص</button>
+
+                <!-- Logout Button -->
+                <button class="control-button" id="logoutButton">تسجيل الخروج</button>
+            </div>
+            <div class="hamburger-menu" id="hamburgerMenu" aria-label="Menu">&#9776;</div>
+        </nav>
+        <button class="back-button" onclick="goBackHome()">عودة الي الصفحة الرئيسية</button>
+
+
+        <button id="refreshDatabaseButton">Refresh Database</button>
+
+        <!-- Main Heading -->
+        <h1>إدارة الأشخاص</h1>
+
+        <!-- Controls -->
+        <div class="controls">
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" id="personSearch" placeholder="أدخل اسم الشخص...">
+                <button class="control-button" id="filterByButton">التصفية</button>
+
+            </div>
+            <!-- Filter By Button -->
+
+            <!-- Filter Modal -->
+            <div id="filterModal" class="modal hidden" role="dialog" aria-labelledby="filterTitle" aria-modal="true"
+                onclick="closeModal(event)">
+                <div class="modal-content gradient-background" onclick="event.stopPropagation()">
+                    <span class="close" onclick="closeForm('filterModal')">&times;</span>
+                    <h3 id="filterTitle">تصفية العرض</h3>
+                    <div class="filter-options">
+                        <div class="filter-group">
+                            <label for="filterFolar">هل حصل على الفولار:</label>
+                            <select id="filterFolar">
+                                <option value="">الكل</option>
+                                <option value="Yes">نعم</option>
+                                <option value="No">لا</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterMonthDOB">شهر الميلاد:</label>
+                            <select id="filterMonthDOB">
+                                <option value="">الكل</option>
+                                <option value="01">يناير</option>
+                                <option value="02">فبراير</option>
+                                <option value="03">مارس</option>
+                                <option value="04">أبريل</option>
+                                <option value="05">مايو</option>
+                                <option value="06">يونيو</option>
+                                <option value="07">يوليو</option>
+                                <option value="08">أغسطس</option>
+                                <option value="09">سبتمبر</option>
+                                <option value="10">أكتوبر</option>
+                                <option value="11">نوفمبر</option>
+                                <option value="12">ديسمبر</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterTags">البطاقات</label>
+                            <select id="filterTags" multiple>
+                                <!-- Tag options will be populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="filter-buttons">
+                            <button class="control-button" id="applyFilterButton">تطبيق التصفية</button>
+                            <button class="control-button" id="cancelFilterButton">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Class Selection -->
+        </div>
+
+        <label for="classSelect">اختار القطاع:</label>
+        <select id="classSelect">
+            <!-- Options will be populated dynamically -->
+        </select>
+        <!-- Person Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>الوحدة</th>
+                        <th>الاسم</th>
+                        <th>البطاقات</th>
+                        <th>عرض</th>
+                        <th>تعديل</th>
+                        <th>حذف</th>
+                                            </tr>
+                </thead>
+                <tbody id="personTable">
+                    <!-- Person data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination Controls -->
+<div class="pagination-controls">
+    <button id="prevPageButton" class="pagination-button" disabled>السابق</button>
+    <span id="pageName"></span>
+    <button id="nextPageButton" class="pagination-button">التالي</button>
+</div>
+
+
+
+        <!-- Import Person Modal -->
+<div id="importPersonModal" class="modal hidden" role="dialog" aria-labelledby="importPersonTitle" aria-modal="true" onclick="closeModal(event)">
+    <div class="modal-content gradient-background" onclick="event.stopPropagation()">
+        <span class="close" onclick="closeForm('importPersonModal')">&times;</span>
+        <h3 id="importPersonTitle">استيراد الأشخاص</h3>
+        <form id="importPersonForm">
+            <input type="file" id="personFileInput" accept=".xlsx, .xls">
+            <button type="button" class="submit-button" onclick="importPersons()">استيراد</button>
+        </form>
+        <button class="download-button" onclick="downloadPersonTemplate()">تحميل الشيت</button>
+    </div>
+</div>
+
+        <!-- Create Tag Modal -->
+        <div id="createTagModal" class="modal hidden" role="dialog" aria-labelledby="createTagTitle" aria-modal="true"
+            onclick="closeModal(event)">
+            <div class="modal-content gradient-background" onclick="event.stopPropagation()">
+                <span class="close" onclick="closeForm('createTagModal')">&times;</span>
+                <h3 id="createTagTitle">إنشاء بطاقة جديدة</h3>
+                <form id="createTagForm">
+                    <label for="newTagName">اسم البطاقة:</label>
+                    <input type="text" id="newTagName" required>
+                    <button type="submit" class="submit-button">إنشاء البطاقة</button>
+                </form>
+            </div>
+        </div>
+
+
+<!-- View Person Modal -->
+<div id="viewPersonModal" class="modal hidden" role="dialog" aria-labelledby="viewPersonTitle" aria-modal="true"
+    onclick="closeModal(event)">
+    <div class="modal-content gradient-background personformmodal" onclick="event.stopPropagation()">
+        <span class="close" onclick="closeForm('viewPersonModal')">&times;</span>
+        <h3 id="viewPersonTitle">View Person</h3>
+        <div id="viewPersonError" class="error-message"></div>
+
+        <!-- Disabled Fields -->
+        <label for="viewPersonUnit">اختر القطاع:</label>
+        <input type="text" id="viewPersonUnit" class="viewinputfields" disabled>
+
+        <label for="viewPersonName">الاسم:</label>
+        <input type="text" id="viewPersonName" class="viewinputfields" disabled>
+
+        <label for="viewPersonAddress">العنوان:</label>
+        <input type="text" id="viewPersonAddress" class="viewinputfields" disabled>
+
+        <label for="viewPersonDOB">تاريخ الميلاد:</label>
+        <input type="date" id="viewPersonDOB" class="viewinputfields" disabled>
+
+        <label for="viewPersonMobile">رقم الموبايل:</label>
+        <input type="text" id="viewPersonMobile" class="viewinputfields" disabled>
+
+        <label for="viewPersonPhone">الرقم الارضي:</label>
+        <input type="text" id="viewPersonPhone" class="viewinputfields" disabled>
+
+        <label for="viewPersonEmail">البريد الالكتروني:</label>
+        <input type="email" id="viewPersonEmail" class="viewinputfields" disabled>
+
+        <label for="viewPersonSchool">المدرسة:</label>
+        <input type="text" id="viewPersonSchool" class="viewinputfields" disabled>
+
+        <label for="viewPersonAcademicYear">السنة الدراسية:</label>
+        <input type="text" id="viewPersonAcademicYear"  class="viewinputfields" disabled>
+
+        <label for="viewPersonFamily">الاسرة:</label>
+        <input type="text" id="viewPersonFamily" class="viewinputfields" disabled>
+
+        <label for="viewPersonServant">اسم الخادم:</label>
+        <input type="text" id="viewPersonServant" class="viewinputfields" disabled>
+
+        <label for="viewPersonAffiliation">اسم اب الاعتراف:</label>
+        <input type="text" id="viewPersonAffiliation" class="viewinputfields" disabled>
+
+        <label for="viewPersonChurch">كنيسة اب الاعتراف:</label>
+        <input type="text" id="viewPersonChurch" class="viewinputfields" disabled>
+
+        <label for="viewPersonFolar">هل استلم الفولار؟</label>
+        <select id="viewPersonFolar" disabled>
+            <option value="">برجاء الاختيار</option>
+            <option value="Yes">نعم</option>
+            <option value="No">لا</option>
+        </select>
+
+        <!-- Tags -->
+        <label for="viewPersonTags">بطاقات الفرد:</label>
+        <select id="viewPersonTags" multiple disabled>
+            <!-- Tag options will be populated dynamically -->
+        </select>
+    </div>
+</div>
+
+<!-- Add Person Form -->
+<div id="addPersonForm" class="modal hidden" role="dialog" aria-labelledby="addPersonTitle" aria-modal="true"
+    onclick="closeModal(event)">
+    <div class="modal-content gradient-background personformmodal" onclick="event.stopPropagation()">
+        <span class="close" onclick="closeForm('addPersonForm')">&times;</span>
+        <h3 id="addPersonTitle">إضافة شخص</h3>
+        <label for="personUnit">اختر القطاع:</label>
+        <select id="personUnit" required>
+            <!-- Class options will be populated dynamically -->
+        </select>
+        <label for="personName">أدخل الاسم:</label>
+        <input type="text" id="personName" required>
+        <label for="personAddress">العنوان</label>
+        <input type="text" id="personAddress" required>
+        <label for="personDOB">تاريخ الميلاد:</label>
+        <input type="date" id="personDOB" required>
+        <label for="personMobile">رقم الموبايل</label>
+        <input type="text" id="personMobile" required>
+        <label for="personPhone">الرقم الارضي</label>
+        <input type="text" id="personPhone" required>
+        <label for="personEmail">البريد الالكتروني:</label>
+        <input type="email" id="personEmail">
+        <label for="personSchool">المدرسة:</label>
+        <input type="text" id="personSchool" required>
+        <label for="personAcademicYear">السنة الدراسية</label>
+        <input type="text" id="personAcademicYear" required>
+        <label for="personFamily">الاسرة</label>
+        <input type="text" id="personFamily" required>
+        <label for="personServant">اسم الخادم المسئول</label>
+        <input type="text" id="personServant" required>
+        <label for="personAffiliation">اسم اب الاعتراف</label>
+        <input type="text" id="personAffiliation" required>
+        <label for="personChurch">كنيسة اب الاعتراف</label>
+        <input type="text" id="personChurch" required>
+        <label for="personFolar">استلمت الفولار؟:</label>
+        <select id="personFolar" required>
+            <option value="">اختار اه او لا</option>
+            <option value="Yes">اه استلمته</option>
+            <option value="No">لا مستلمتش</option>
+        </select>
+        <!-- Tags -->
+        <label for="addPersonTags">بطاقات الفرد:</label>
+        <select id="addPersonTags" multiple></select>
+        <button class="submit-button" onclick="addPerson()">إرسال</button>
+    </div>
+</div>
+
+        <!-- Manage Tags Modal -->
+<div id="manageTagsModal" class="modal hidden" role="dialog" aria-labelledby="manageTagsTitle" aria-modal="true" onclick="closeModal(event)">
+    <div class="modal-content gradient-background" onclick="event.stopPropagation()">
+        <span class="close" onclick="closeForm('manageTagsModal')">&times;</span>
+        <h3 id="manageTagsTitle">تعديل البطاقات</h3>
+        <div class="modal-body">
+            <table id="tagsTable">
+                <thead>
+                    <tr>
+                        <th>اسم البطاقة</th>
+                        <th>التحكمات</th>
+                    </tr>
+                </thead>
+                <tbody id="tagsTableBody">
+                    <!-- Tags will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Person Modal -->
+<div id="editPersonModal" class="modal hidden" role="dialog" aria-labelledby="editPersonTitle" aria-modal="true"
+    onclick="closeModal(event)">
+    <div class="modal-content gradient-background edit-contant-modal" onclick="event.stopPropagation()">
+        <span class="close" onclick="closeForm('editPersonModal')">&times;</span>
+        <h3 id="editPersonTitle">تعديل بيانات شخص</h3>
+        <div id="editPersonError" class="error-message"></div>
+
+        <!-- Hidden Input for personId -->
+        <input type="hidden" id="editPersonId">
+
+        <!-- Editable Fields -->
+        <label for="editPersonUnit">اختر القطاع:</label>
+        <select id="editPersonUnit" required>
+            <!-- Class options will be populated dynamically -->
+        </select>
+
+        <label for="editPersonName">الاسم:</label>
+        <input type="text" id="editPersonName" required>
+
+        <label for="editPersonAddress">العنوان:</label>
+        <input type="text" id="editPersonAddress">
+
+        <label for="editPersonDOB">تاريخ الميلاد:</label>
+        <input type="date" id="editPersonDOB">
+
+        <label for="editPersonMobile">رقم التليفون:</label>
+        <input type="text" id="editPersonMobile">
+
+        <label for="editPersonPhone">الرقم الارضي</label>
+        <input type="text" id="editPersonPhone">
+
+        <label for="editPersonEmail">البريد الالكتروني:</label>
+        <input type="email" id="editPersonEmail">
+
+        <label for="editPersonSchool">المدرسة:</label>
+        <input type="text" id="editPersonSchool">
+
+        <label for="editPersonAcademicYear">السنة الدراسية</label>
+        <input type="text" id="editPersonAcademicYear">
+
+        <label for="editPersonFamily">الاسرة</label>
+        <input type="text" id="editPersonFamily">
+
+        <label for="editPersonServant">اسم الخادم</label>
+        <input type="text" id="editPersonServant">
+
+        <label for="editPersonAffiliation">اسم اب الاعتراف</label>
+        <input type="text" id="editPersonAffiliation">
+
+        <label for="editPersonChurch">كنيسة اب الاعتراف</label>
+        <input type="text" id="editPersonChurch">
+
+        <label for="editPersonFolar">هل استلمت الفولار</label>
+        <select id="editPersonFolar">
+            <option value="">برجاء الاختيار</option>
+            <option value="Yes">نعم</option>
+            <option value="No">لا</option>
+        </select>
+
+        <!-- Tags -->
+        <label for="editPersonTags">بطاقات الفرد:</label>
+        <select id="editPersonTags" multiple></select>
+
+        <button type="button" class="submit-button" onclick="updatePerson()">حفظ التغييرات</button>
+    </div>
+</div>
+        
+
+        <!-- Toast Notification -->
+        <div id="toast" class="hidden"></div>
+    </div>
+
+    <!-- External JS -->
+    <script src="scripts.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,111 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <!-- Head content -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متتبع الحضور</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Choices.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+    
+    <!-- Firebase Configuration -->
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+    <!-- Firebase Services -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+    
+    <!-- Firebase Initialization -->
+    <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCnSAELIKIK6TkAQmG1csD54NtrPtX189Q",
+  authDomain: "armyapp-c3f37.firebaseapp.com",
+  projectId: "armyapp-c3f37",
+  storageBucket: "armyapp-c3f37.appspot.com",
+  messagingSenderId: "341907242150",
+  appId: "1:341907242150:web:b64fe61a9ec52c4c9ec867",
+  measurementId: "G-5WELL8GF9Z"
+};
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    
+    <!-- XLSX.js for Excel file generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+    
+    <!-- Choices.js -->
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <!-- Set currentPage -->
+    <script>
+        const currentPage = 'index';
+    </script>
+    <style>
+        #roleOptions{
+    display: flex;
+    align-content: center;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.control-button{
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 30%;
+    height: 4rem;
+    font-size: 12px;
+    font-weight: bolder;
+}
+#logoutButton{
+    text-align: center;
+}
+#mainContent{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+    </style>
+</head>
+<body dir="rtl">
+    <!-- Sign-in Modal -->
+    <div id="signInModal" class="modal show" role="dialog" aria-labelledby="signInTitle" aria-modal="true">
+        <div class="modal-content gradient-background">
+            <h2 id="signInTitle">تسجيل الدخول</h2>
+            <form id="signInForm">
+                <label for="signInEmail">البريد الإلكتروني:</label>
+                <input type="email" id="signInEmail" required aria-required="true" aria-describedby="emailHelp">
+                <small id="emailHelp">لن نشارك بريدك الإلكتروني مع أي شخص آخر.</small>
+                <label for="signInPassword">كلمة المرور:</label>
+                <input type="password" id="signInPassword" required aria-required="true">
+                <button type="submit">تسجيل الدخول</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+        <h1>مرحبًا بك في متتبع الحضور</h1>
+        <div class="container hidden" id="mainContent">
+
+        <div id="roleOptions">
+            <!-- سيتم ملء الخيارات بناءً على دور المستخدم -->
+        </div>
+        <!-- Logout Button -->
+        <button class="control-button" id="logoutButton">تسجيل الخروج</button>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden"></div>
+
+    <!-- External JS -->
+    <script src="scripts.js"></script>
+</body>
+</html>

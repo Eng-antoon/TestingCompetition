@@ -1,0 +1,829 @@
+/* General Styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f6f9;
+    color: #333;
+    direction: rtl;
+}
+
+/* Container */
+.container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Hidden Class */
+.hidden {
+    display: none;
+}
+
+/* Modals */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: #cecece;
+    padding: 30px 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    animation: slideIn 0.3s;
+    overflow: visible; /* Ensure overflow is visible */
+    position: relative; /* Ensure correct positioning */
+    z-index: 1001; /* Ensure it's above the modal overlay */
+}
+
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); }
+    to { transform: translateY(0); }
+}
+
+/* Gradient Background for Modals */
+.gradient-background {
+    background: linear-gradient(135deg, #5f7d83 0%, #2575fc 100%);
+    color: #fff;
+}
+
+/* Modal Headers */
+.modal-content h2, .modal-content h3 {
+    margin-top: 0;
+    text-align: center;
+}
+.error-message {
+    color: #ff4d4d; /* Red color for error messages */
+    background-color: #ffe6e6; /* Light red background */
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: none; /* Hidden by default */
+}
+
+
+/* Toast Styles */
+#toast {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 10000;
+    right: 30px;
+    bottom: 30px;
+    font-size: 17px;
+}
+
+#toast.show {
+    visibility: visible;
+    animation: fadeInOut 3s forwards;
+}
+
+@keyframes fadeInOut {
+    0% { bottom: 0; opacity: 0; }
+    10%, 90% { bottom: 30px; opacity: 1; }
+    100% { bottom: 0; opacity: 0; }
+}
+
+
+/* Close Button */
+.close {
+    color: #fff;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #ccc;
+}
+
+/* Form Styles */
+.modal-content form label {
+    display: block;
+    margin-top: 15px;
+    color: #fff;
+    font-weight: bold;
+}
+
+.modal-content form input,
+.modal-content form select {
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    margin-top: 5px;
+    font-size: 1em;
+}
+
+.modal-content form button {
+    margin-top: 25px;
+    width: 100%;
+    background-color: #fff;
+    color: #333;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+
+.modal-content form button:hover {
+    background-color: #f1f1f1;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #2575fc;
+    color: white;
+    direction: ltr;
+    padding: 10px 20px;
+}
+
+.navbar-brand {
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+.navbar-menu {
+    display: flex;
+    gap: 10px;
+}
+
+.navbar-menu .control-button {
+    background-color: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 10px 15px;
+    font-size: 1em;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar-menu .control-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+}
+
+.hamburger-menu {
+    display: none;
+    font-size: 30px;
+    cursor: pointer;
+    color: white;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.controls label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.controls select {
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Main Heading */
+h1 {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 2.5em;
+    color: #333;
+}
+
+/* Filters */
+.filters-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.search-bar {
+    flex-grow: 1;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.filter-dropdown {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.filter-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+
+.filter-button:hover {
+    background-color: #218838;
+}
+
+/* Calendar */
+.calendar-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-nav-button {
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    margin: 0 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+
+.calendar-nav-button:hover {
+    background-color: #138496;
+}
+
+.calendar-month {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Calendar Grid */
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.calendar div {
+    background-color: #fff;
+    padding: 15px;
+    margin-top: 10px;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.calendar div:hover {
+    transform: translateY(-5px);
+}
+
+.calendar .day-name {
+    font-weight: bold;
+    color: #6c757d;
+}
+
+.calendar .day-number {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 10px 0;
+    color: #333;
+}
+
+.calendar .names {
+    margin-top: 10px;
+    max-height: 80px;
+    overflow-y: auto;
+    font-size: 0.9em;
+}
+
+.calendar .attended {
+    background-color: #d4edda;
+}
+
+.calendar .not-attended {
+    background-color: #f8d7da;
+}
+.download-button {
+    background-color: #77abe4;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 0.9em;
+    transition: background-color 0.3s;
+}
+
+.download-button:hover {
+    background-color: #0056b3;
+}
+
+
+/* Table */
+.table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #2575fc;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+.edit-button {
+    background-color: #ffc107;
+    color: #333;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s;
+}
+
+.edit-button:hover {
+    background-color: #e0a800;
+}
+
+#personEmail{
+    width: 100%;
+    padding: 10px 2px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+/* Form Elements */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+select {
+    width: 100%;
+    padding: 10px 2px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+label {
+    font-weight: bold;
+    margin-top: 10px;
+    display: block;
+    color: #333;
+}
+
+/* Buttons */
+.submit-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-size: 1em;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+    background-color: #218838;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar-menu {
+        display: none;
+        flex-direction: column;
+        background-color: #2575fc;
+        position: absolute;
+        top: 60px;
+        right: 0;
+        width: 100%;
+        z-index: 999;
+    }
+
+    .navbar-menu.show {
+        display: flex;
+    }
+
+    .navbar-menu .control-button {
+        width: 100%;
+        text-align: left;
+        padding: 15px 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .hamburger-menu {
+        display: block;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .filters-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .search-bar {
+        margin-bottom: 10px;
+        margin-right: 0;
+    }
+}
+
+/* Animations */
+.control-button, .calendar-nav-button, .filter-button, .edit-button, .submit-button, .download-button {
+    animation: fadeInUp 0.5s;
+}
+
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar Styling for Calendar Names */
+.calendar .names::-webkit-scrollbar {
+    width: 6px;
+}
+
+.calendar .names::-webkit-scrollbar-thumb {
+    background-color: #533b3b;
+    border-radius: 3px;
+}
+
+/* Tooltip for Names Overflow */
+.calendar .names span {
+    position: relative;
+}
+
+.calendar .names span:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: 0;
+    bottom: 100%;
+    background-color: #333;
+    color: #fff;
+    padding: 5px 8px;
+    border-radius: 5px;
+    white-space: nowrap;
+    z-index: 10;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+}
+
+.calendar .names span:hover::after {
+    opacity: 1;
+}
+
+/* Expand the input's clickable area */
+/* Add these styles to styles.css */
+
+.choices__inner {
+    background-color: #fff; /* White background */
+    color: #333; /* Dark text */
+    border: 1px solid #ccc; /* Light border */
+    cursor: pointer;
+}
+
+#recordName {
+    background-color: #fff; /* White background */
+    color: #333; /* Dark text */
+    border: 1px solid #ccc; /* Light border */
+    cursor: pointer;
+}
+
+
+
+.choices__list--dropdown .choices__item--selectable {
+    background-color: linear-gradient(135deg, #8960b4 0%, #425370 100%);
+    color: #0a0808;
+    cursor: pointer;
+    font-size: large;
+    font-weight: bolder;
+}
+
+
+
+/* Ensure the dropdown is positioned correctly and visible */
+
+
+
+
+.choices__input{
+
+width: 100% !important;
+padding: 0px !important;
+}
+
+
+
+
+/* Styles for Back to Home button */
+#prevPageButton,
+#nextPageButton,
+#refreshDatabaseButton,
+.back-button {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.back-button:hover {
+    background-color: #0056b3;
+}
+
+
+/* Search Container */
+.search-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 15px; /* Add margin to separate from other elements */
+}
+
+#personSearch {
+    flex: 1;
+    margin-right: 10px; /* Add space between search bar and filter button */
+}
+
+/* Filter Options */
+.filter-options {
+    background-color: #fff;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.filter-options h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.filter-group {
+    margin-bottom: 10px;
+}
+
+.filter-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.filter-group select {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+}
+#filterByButton,
+#applyFilterButton,
+#clearFilterButton {
+    margin-right: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+#filterByButton {
+    flex: none !important;
+}
+
+#applyFilterButton:hover,
+#clearFilterButton:hover {
+    background-color: #218838;
+}
+
+/* Tags Select in Modals */
+#viewPersonTags,
+#editPersonTags,
+#addPersonTags,
+#filterTags {
+    width: 100%;
+    padding: 10px 2px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+/* Ensure the modal content scrolls if content is too long */
+.modal-content {
+    overflow-y: auto;
+}
+
+/* Filter Modal Buttons */
+.filter-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#applyFilterButton {
+    background-color: #28a745; /* Green */
+}
+
+#applyFilterButton:hover {
+    background-color: #218838;
+}
+
+#cancelFilterButton {
+    background-color: #dc3545; /* Red */
+}
+
+#cancelFilterButton:hover {
+    background-color: #c82333;
+}
+#personFileInput {
+    margin-top: 10px;
+}
+/* Styles for the Manage Tags Modal */
+#manageTagsModal .modal-body {
+    max-height: 400px; /* Adjust as needed */
+    overflow-y: auto;
+}
+
+#tagsTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#tagsTable th, #tagsTable td {
+    border: 1px solid #ddd;
+
+    padding: 8px;
+}
+
+
+#tagsTable th {
+    background-color: linear-gradient(135deg, #5f7d83 0%, #2575fc 100%);
+}
+
+#tagsTable tr:nth-child(even) {
+    background-color: rgb(7, 29, 88);
+}
+
+#tagsTable tr:hover {
+    background-color: #1e5e50;
+}
+
+#tagsTable td {
+    text-align: left;
+}
+
+.tag-actions{
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;    
+    font-size: 1rem;
+    font-weight: bolder;
+}
+
+.tag {
+    display: inline-block;
+    background-color: #e2e2e2;
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin: 2px;
+}
+
+.edit-contant-modal{
+
+    top: 225px;
+}
+
+.personformmodal{
+    top: 165px;
+}
+.viewinputfields{
+    background-color: aliceblue;
+}
+/* Pagination Controls */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.pagination-controls .control-button {
+    padding: 8px 16px;
+    font-size: 1em;
+    border-radius: 5px;
+    background-color: #2575fc;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagination-controls .control-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination-controls .control-button:hover:not(:disabled) {
+    background-color: #1a5bb8;
+}
+
+.pagination-controls #pageName {
+    font-size: 1.2em;
+    font-weight: bold;
+}
